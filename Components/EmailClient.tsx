@@ -11,14 +11,34 @@ import { Progress } from './ui/progress';
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 
+import { useEdgeStore } from '../lib/edgestore';
+import { FileState, MultiFileDropzone} from './FileUploader';
+
 const EmailClient = () => {
 
 
 
     const [progress, setProgress] = useState(0);
     const [emails, setEmails] = useState(0)
-    const [items, setItems] = useState([])
-    const [attachment, setAttachment] = useState<>()
+    const [items, setItems] = useState<any>([])
+    const [attachment, setAttachment] = useState<File>()
+    const [file, setFile] = React.useState<File>();
+    const [urls, setUrls] = useState<string[]>([]);
+
+    const [fileStates, setFileStates] = useState<FileState[]>([]);
+    const { edgestore } = useEdgeStore();
+    function updateFileProgress(key: string, progress: FileState['progress']) {
+        setFileStates((fileStates) => {
+            const newFileStates = structuredClone(fileStates);
+            const fileState = newFileStates.find(
+                (fileState) => fileState.key === key,
+            );
+            if (fileState) {
+                fileState.progress = progress;
+            }
+            return newFileStates;
+        });
+    }
 
 
     // editor
@@ -75,7 +95,7 @@ const EmailClient = () => {
         });
     };
 
-    console.log(items)
+    console.log(items, fileStates)
 
     const formik = useFormik({
         initialValues: {
@@ -83,85 +103,127 @@ const EmailClient = () => {
             message: "",
         },
         onSubmit: async (values) => {
-            // console.log(values)
+
+            for (const url of urls) {
+                await edgestore.publicFiles.confirmUpload({
+                    url,
+                });
+            }
+
 
             let myValues = {
                 subject: values.subject,
                 message: values.message
             }
-           
-            const myattachment = { name: attachment?.name, data: fileContent }; // Use fileContent from state
+
+
 
             for (const mailer of items) {
 
-                await mail(mailer.emails, myValues.subject, myValues.message, myattachment)
+
+                await mail(mailer.emails, myValues.subject, myValues.message, fileStates[0]?.file.name, fileStates[0]?.file.type, urls[0])
                 setEmails((prevState) => prevState + 1)
+
+
             }
 
-            formik.setSubmitting(false)
             formik.resetForm()
             setItems([])
 
-        }
-    })
-    // Initialize state to store file content
-    const [fileContent, setFileContent] = useState<string | null>(null);
 
-    function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>): void {
-        const file = e.target.files && e.target.files[0];
-        setAttachment(file);
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                if (event.target && event.target.result) {
-                    const content = event.target.result as string; // Cast result to string
-                    console.log("File Content:", content);
-                    // Store the file content in state
-                    setFileContent(content);
-                }
-            };
-            reader.readAsDataURL(file); // Use readAsDataURL to read file content
-        }
+        
+
+
+
+
+
+            
+
+
     }
+    })
+// Initialize state to store file content
+const [fileContent, setFileContent] = useState<string | null>(null);
 
 
-    // const [progressEmail, setProgressEmail] = React.useState(13)
 
-    // React.useEffect(() => {
-    //     const timer = setTimeout(() => setProgressEmail(66), 500)
-    //     return () => clearTimeout(timer)
-    // }, [])
-    return (
-        <div>
+
+return (
+    <div>
+        <div className="grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="picture">Upload list of emails from excel file</Label>
+            <Input id="picture" type="file" onChange={(e) => e.target.files && readExcel(e.target.files[0])} />
+        </div>
+        <form action="" onSubmit={formik.handleSubmit} className='my-6'>
+            <Label> Setup your email Structure </Label>
+            <Input placeholder="subject" className="form-control my-4" name='subject' onChange={formik.handleChange} onBlur={formik.handleBlur} defaultValue={formik.values.subject} />
+
+            <EditorContent editor={editor} />
+            <Input placeholder="message" className="form-control my-4" name='message' onChange={formik.handleChange} onBlur={formik.handleBlur} defaultValue={formik.values.message} />
             <div className="grid w-full max-w-sm items-center gap-1.5">
-                <Label htmlFor="picture">Upload list of emails from excel file</Label>
-                <Input id="picture" type="file" onChange={(e) => e.target.files && readExcel(e.target.files[0])} />
+                <Label htmlFor="attachment">Upload File Attachment (Optional)</Label>
+                <MultiFileDropzone
+                    className='w-full'
+                    value={fileStates}
+                    onChange={(files) => {
+                        setFileStates(files);
+                    }}
+                    onFilesAdded={async (addedFiles) => {
+                        setFileStates([...fileStates, ...addedFiles]);
+                        await Promise.all(
+                            addedFiles.map(async (addedFileState) => {
+                                try {
+                                    const res = await edgestore.publicFiles.upload({
+                                        file: addedFileState.file,
+                                        options: {
+                                            temporary: true
+                                        },
+                                        onProgressChange: async (progress) => {
+                                            updateFileProgress(addedFileState.key, progress);
+                                            if (progress === 100) {
+                                                // wait 1 second to set it to complete
+                                                // so that the user can see the progress bar at 100%
+                                                await new Promise((resolve) => setTimeout(resolve, 1000));
+                                                updateFileProgress(addedFileState.key, 'COMPLETE');
+                                            }
+                                        },
+
+                                    });
+                                    setUrls([...urls, res.url]);
+
+
+                                } catch (err) {
+                                    updateFileProgress(addedFileState.key, 'ERROR');
+                                }
+                            }),
+                        );
+                    }}
+                />
             </div>
-            <form action="" onSubmit={formik.handleSubmit} className='my-6'>
-                <Label> Setup your email Structure </Label>
-                <Input placeholder="subject" className="form-control my-4" name='subject' onChange={formik.handleChange} onBlur={formik.handleBlur} defaultValue={formik.values.subject} />
 
-                <EditorContent editor={editor} />
-                <Input placeholder="message" className="form-control my-4" name='message' onChange={formik.handleChange} onBlur={formik.handleBlur} defaultValue={formik.values.message} />
-                <div className="grid w-full max-w-sm items-center gap-1.5">
-                    <Label htmlFor="attachment">Upload File Attachment (Optional)</Label>
-                    <Input id="attachment" type="file" onChange={(e) => handleFileUpload(e)} />
-                </div>
 
-                <Button type='submit' disabled={formik.isSubmitting} className='mt-4 disabled:bg-gray-400'>Send Bulk mails</Button>
-            </form>
 
-            <div className='my-4'>
-                {items.length > 0 && (
-                    <>
-                        <Progress value={emails} className={`w-[60/${items.length}%]`} color='green' />
-                        Emails sent: {emails} / {items?.length}
-                    </>
+            <Button type='submit' disabled={formik.isSubmitting || items.length < 1} className='mt-4 disabled:bg-gray-400'>
+                {formik.isSubmitting ? ("Sending mails please wait ...") : (
+                    items.length < 1 ? (<p className='text-white'>set an excel file</p>) : (
+                        "Send Bulk mails"
+                    )
                 )}
 
-            </div>
+            </Button>
+        </form>
+
+        <div className='my-4'>
+            {items.length > 0 && (
+                <>
+                    <Progress value={emails} className={`w-[60/${items.length}%]`} color='green' />
+                    Emails sent: {emails} / {items?.length}
+                </>
+            )}
+
         </div>
-    )
+    </div>
+)
 }
 
 export default EmailClient

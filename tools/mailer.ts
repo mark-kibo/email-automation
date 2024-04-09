@@ -24,7 +24,8 @@ const transporter = nodemailer.createTransport({
 
 
 
-export const mail = async (to:string, subject:string, message:string, file:{name:string; data:string | null;}) => {
+export const mail = async (to: string, subject: string, message: string, file: any, contentType: any, path:string) => {
+    console.log(path, file, contentType, path)
 
     try {
         // send mail with defined transport object
@@ -33,24 +34,21 @@ export const mail = async (to:string, subject:string, message:string, file:{name
             to: to, // list of receivers
             subject: subject, // Subject line
             text: message, // plain text body
-            html: `<b>${message}</b>`, // html body
+            html: `<p className="space-y-4 space-x-2 flex items-start justify-start">${message}</p>`, // html body
             attachments: [
                 {
-                    filename: file.name, // Use the file name as the attachment name
-                    content: file.data, // Use the file data as the attachment content
+                    filename: file,
+                    path: path,// Use the file name as the attachment name
+                    contentType: contentType, // Use the file data as the attachment content
                 }
             ]
         });
 
         console.log("Message sent: %s", info.messageId);
-        NextResponse.json({
-            message: "Message sent: %s" + info.messageId
-        })
-        // Message sent: <d786aa62-4e0a-070a-47ed-0b0666549519@ethereal.email>
-    } catch {
-        return NextResponse.json({
-            error: "Failed to send email"
-        })
+        return { message: "Message sent: %s" };
+    } catch (error) {
+        console.error("Failed to send email", error);
+        return { error: "Failed to send email" };
     }
 
 
