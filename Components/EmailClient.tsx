@@ -160,7 +160,7 @@ return (
             <Label> Setup your email Structure </Label>
             <Input placeholder="subject" className="form-control my-4" name='subject' onChange={formik.handleChange} onBlur={formik.handleBlur} defaultValue={formik.values.subject} />
 
-            <EditorContent editor={editor} />
+            {/* <EditorContent editor={editor} /> */}
             <Input placeholder="message" className="form-control my-4" name='message' onChange={formik.handleChange} onBlur={formik.handleBlur} defaultValue={formik.values.message} />
             <div className="grid w-full max-w-sm items-center gap-1.5">
                 <Label htmlFor="attachment">Upload File Attachment (Optional)</Label>
