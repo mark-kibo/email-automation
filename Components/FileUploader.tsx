@@ -80,7 +80,7 @@ const MultiFileDropzone = React.forwardRef<HTMLInputElement, InputProps>(
           return;
         }
         if (files) {
-          const addedFiles = files.map<FileState>((file: any) => ({
+          const addedFiles = files.map((file: any): FileState => ({
             file,
             key: Math.random().toString(36).slice(2),
             progress: 'PENDING',

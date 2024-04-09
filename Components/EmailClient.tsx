@@ -19,6 +19,8 @@ const EmailClient = () => {
 
 
     const [progress, setProgress] = useState(0);
+    const [uploaded, setUploaded] = useState(false)
+
     const [emails, setEmails] = useState(0)
     const [items, setItems] = useState<any>([])
     const [attachment, setAttachment] = useState<File>()
@@ -181,6 +183,7 @@ return (
                                         onProgressChange: async (progress) => {
                                             updateFileProgress(addedFileState.key, progress);
                                             if (progress === 100) {
+                                                setUploaded(true)
                                                 // wait 1 second to set it to complete
                                                 // so that the user can see the progress bar at 100%
                                                 await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -203,7 +206,7 @@ return (
 
 
 
-            <Button type='submit' disabled={formik.isSubmitting || items.length < 1} className='mt-4 disabled:bg-gray-400'>
+            <Button type='submit' disabled={formik.isSubmitting || items.length < 1 || uploaded} className='mt-4 disabled:bg-gray-400'>
                 {formik.isSubmitting ? ("Sending mails please wait ...") : (
                     items.length < 1 ? (<p className='text-white'>set an excel file</p>) : (
                         "Send Bulk mails"

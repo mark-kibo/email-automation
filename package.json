@@ -9,10 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@edgestore/react": "^0.1.6",
+    "@edgestore/server": "^0.1.6",
     "@hookform/resolvers": "^3.3.4",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-progress": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
+    "@tiptap/pm": "^2.2.6",
     "@tiptap/react": "^2.2.6",
     "@tiptap/starter-kit": "^2.2.6",
     "@usewaypoint/client": "^0.0.7",
@@ -24,6 +27,7 @@
     "nodemailer": "^6.9.13",
     "react": "^18",
     "react-dom": "^18",
+    "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.51.2",
     "tailwind-merge": "^2.2.2",
     "tailwindcss-animate": "^1.0.7",
