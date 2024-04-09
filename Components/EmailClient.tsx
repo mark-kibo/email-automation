@@ -4,10 +4,10 @@ import * as XLSX from "xlsx";
 import React, { useState } from 'react'
 import { mail } from '@/tools/mailer';
 import { useFormik } from "formik"
-import { Input } from './ui/input';
-import { Button } from './ui/button';
-import { Label } from './ui/label';
-import { Progress } from './ui/progress';
+import { Input } from '../shadcn/ui/input';
+import { Button } from '../shadcn/ui/button';
+import { Label } from '../shadcn/ui/label';
+import { Progress } from '../shadcn/ui/progress';
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 
