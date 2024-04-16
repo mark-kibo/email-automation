@@ -1,4 +1,4 @@
-import EmailClient from "@/Components/EmailClient";
+import EmailClient from "@/components/EmailClient";
 import Image from "next/image";
 
 export default function Home() {

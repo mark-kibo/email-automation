@@ -12,7 +12,7 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 
 import { useEdgeStore } from '../lib/edgestore';
-import { FileState, MultiFileDropzone} from './FileUploader';
+import { FileState, MultiFileDropzone } from './FileUploader';
 
 const EmailClient = () => {
 
@@ -158,10 +158,10 @@ return (
         </div>
         <form action="" onSubmit={formik.handleSubmit} className='my-6'>
             <Label> Setup your email Structure </Label>
-            <Input placeholder="subject" className="form-control my-4" name='subject' onChange={formik.handleChange} onBlur={formik.handleBlur} defaultValue={formik.values.subject} />
+            <Input placeholder="subject" className="form-control my-4 p-4" name='subject' onChange={formik.handleChange} onBlur={formik.handleBlur} defaultValue={formik.values.subject} />
 
             {/* <EditorContent editor={editor} /> */}
-            <Input placeholder="message" className="form-control my-4" name='message' onChange={formik.handleChange} onBlur={formik.handleBlur} defaultValue={formik.values.message} />
+            <Input placeholder="message" className="form-control my-4 p-4" name='message' onChange={formik.handleChange} onBlur={formik.handleBlur} defaultValue={formik.values.message} />
             <div className="grid w-full max-w-sm items-center gap-1.5">
                 <Label htmlFor="attachment">Upload File Attachment (Optional)</Label>
                 <MultiFileDropzone
@@ -206,7 +206,7 @@ return (
 
 
 
-            <Button type='submit' disabled={formik.isSubmitting || items.length < 1 || uploaded} className='mt-4 disabled:bg-gray-400'>
+            <Button type='submit' disabled={formik.isSubmitting} className='mt-4 disabled:bg-gray-400'>
                 {formik.isSubmitting ? ("Sending mails please wait ...") : (
                     items.length < 1 ? (<p className='text-white'>set an excel file</p>) : (
                         "Send Bulk mails"
