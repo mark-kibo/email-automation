@@ -206,7 +206,7 @@ return (
 
 
 
-            <Button type='submit' disabled={formik.isSubmitting} className='mt-4 disabled:bg-gray-400'>
+            <Button type='submit' disabled={formik.isSubmitting} className='mt-4 disabled:bg-gray-400 bg-gray-900 text-white'>
                 {formik.isSubmitting ? ("Sending mails please wait ...") : (
                         "Send Bulk mails"
                     
