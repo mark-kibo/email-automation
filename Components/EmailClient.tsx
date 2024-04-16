@@ -208,9 +208,8 @@ return (
 
             <Button type='submit' disabled={formik.isSubmitting} className='mt-4 disabled:bg-gray-400'>
                 {formik.isSubmitting ? ("Sending mails please wait ...") : (
-                    items.length < 1 ? (<p className='text-white'>set an excel file</p>) : (
                         "Send Bulk mails"
-                    )
+                    
                 )}
 
             </Button>
